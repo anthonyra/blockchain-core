@@ -3028,6 +3028,8 @@ run_gc_hooks(Blockchain, _Hash) ->
 
         ok = blockchain_ledger_v1:maybe_gc_scs(Blockchain, Ledger),
 
+        ok = blockchain_ledger_v1:maybe_gc_h3dex(Ledger),
+
         ok = blockchain_ledger_v1:maybe_recalc_price(Blockchain, Ledger) %,
 
         %% ok = blockchain_ledger_v1:refresh_gateway_witnesses(Hash, Ledger)
