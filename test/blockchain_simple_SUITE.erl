@@ -658,7 +658,7 @@ poc_request_test(Config) ->
     ?assertEqual(OnionKeyHash0, blockchain_ledger_gateway_v2:last_poc_onion_key_hash(GwInfo2)),
 
     % Check that the PoC info
-    {ok, [PoC]} = blockchain_ledger_v1:find_poc(OnionKeyHash0, Ledger),
+    {ok, [PoC]} = blockchain_ledger_v1:find_pocs(OnionKeyHash0, Ledger),
     ?assertEqual(SecretHash0, blockchain_ledger_poc_v2:secret_hash(PoC)),
     ?assertEqual(OnionKeyHash0, blockchain_ledger_poc_v2:onion_key_hash(PoC)),
     ?assertEqual(Gateway, blockchain_ledger_poc_v2:challenger(PoC)),
@@ -698,7 +698,7 @@ poc_request_test(Config) ->
 
     ok = blockchain_ct_utils:wait_until(fun() -> {ok, 63} =:= blockchain:height(Chain) end),
 
-    ?assertEqual({error, not_found}, blockchain_ledger_v1:find_poc(OnionKeyHash0, Ledger)),
+    ?assertEqual({error, not_found}, blockchain_ledger_v1:find_pocs(OnionKeyHash0, Ledger)),
     % Check that the last_poc_challenge block height got recorded in GwInfo
     {ok, GwInfo3} = blockchain_ledger_v1:find_gateway_info(Gateway, Ledger),
     ?assertEqual(63, blockchain_ledger_gateway_v2:last_poc_challenge(GwInfo3)),
@@ -1653,7 +1653,7 @@ election_test(Config) ->
          Alpha = (rand:uniform() * 10.0) + 1.0,
          Beta = (rand:uniform() * 10.0) + 1.0,
          I2 = blockchain_ledger_gateway_v2:set_alpha_beta_delta(Alpha, Beta, 1, I),
-         blockchain_ledger_v1:update_gateway(I2, Addr, Ledger1)
+         blockchain_ledger_v1:update_gateway(I, I2, Addr, Ledger1)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger1),
@@ -1713,7 +1713,7 @@ election_v3_test(Config) ->
          Alpha = 20.0,
          Beta = 1.0,
          I2 = blockchain_ledger_gateway_v2:set_alpha_beta_delta(Alpha, Beta, 1, I),
-         blockchain_ledger_v1:update_gateway(I2, Addr, Ledger1)
+         blockchain_ledger_v1:update_gateway(I, I2, Addr, Ledger1)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger1),
@@ -1846,7 +1846,7 @@ election_v4_test(Config) ->
          Alpha = 1.0 + rand:uniform(20),
          Beta = 1.0 + rand:uniform(4),
          I2 = blockchain_ledger_gateway_v2:set_alpha_beta_delta(Alpha, Beta, 1, I),
-         blockchain_ledger_v1:update_gateway(I2, Addr, Ledger1)
+         blockchain_ledger_v1:update_gateway(I, I2, Addr, Ledger1)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger1),
@@ -1988,7 +1988,7 @@ light_gw_election_v4_test(Config) ->
          Beta = 1.0 + rand:uniform(4),
          I2 = blockchain_ledger_gateway_v2:set_alpha_beta_delta(Alpha, Beta, 1, I),
          I3 = blockchain_ledger_gateway_v2:mode(light, I2),
-         blockchain_ledger_v1:update_gateway(I3, Addr, Ledger1)
+         blockchain_ledger_v1:update_gateway(I, I3, Addr, Ledger1)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger1),
@@ -2048,7 +2048,7 @@ light_gw_election_v4_test(Config) ->
     [begin
          {ok, I} = blockchain_ledger_v1:find_gateway_info(Addr, Ledger2),
          I2 = blockchain_ledger_gateway_v2:mode(light, I),
-         blockchain_ledger_v1:update_gateway(I2, Addr, Ledger2)
+         blockchain_ledger_v1:update_gateway(I, I2, Addr, Ledger2)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger2),
@@ -2093,7 +2093,7 @@ dataonly_gw_election_v4_test(Config) ->
          Beta = 1.0 + rand:uniform(4),
          I2 = blockchain_ledger_gateway_v2:set_alpha_beta_delta(Alpha, Beta, 1, I),
          I3 = blockchain_ledger_gateway_v2:mode(dataonly, I2),
-         blockchain_ledger_v1:update_gateway(I3, Addr, Ledger1)
+         blockchain_ledger_v1:update_gateway(I, I3, Addr, Ledger1)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger1),
@@ -2153,7 +2153,7 @@ dataonly_gw_election_v4_test(Config) ->
     [begin
          {ok, I} = blockchain_ledger_v1:find_gateway_info(Addr, Ledger2),
          I2 = blockchain_ledger_gateway_v2:mode(dataonly, I),
-         blockchain_ledger_v1:update_gateway(I2, Addr, Ledger2)
+         blockchain_ledger_v1:update_gateway(I, I2, Addr, Ledger2)
      end
      || {Addr, _} <- GenesisMembers],
     ok = blockchain_ledger_v1:commit_context(Ledger2),
@@ -2721,7 +2721,9 @@ payer_test(Config) ->
     ?assertEqual({ok, lists:nth(18, Blocks)}, blockchain:head_block(NewerChain)),
     ?assertEqual({ok, lists:nth(18, Blocks)}, blockchain:get_block(19, NewerChain)),
 
-    blockchain:add_blocks(Blocks ++ [Block22, Block23], NewerChain),
+    blockchain:add_blocks(lists:sublist(Blocks, 19, 2) ++ [Block22, Block23], NewerChain),
+
+    %% ct:pal("block 22 ~p 23 ~p", [blockchain_block:hash_block(Block22), blockchain_block:hash_block(Block23)]),
 
     ?assertEqual({ok, blockchain_block:hash_block(Block23)}, blockchain:head_hash(NewerChain)),
     ?assertEqual({ok, Block23}, blockchain:head_block(NewerChain)),

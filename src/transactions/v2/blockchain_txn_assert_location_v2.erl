@@ -5,10 +5,6 @@
 %%%-------------------------------------------------------------------
 -module(blockchain_txn_assert_location_v2).
 
--ifdef(TEST).
--include_lib("common_test/include/ct.hrl").
--endif.
-
 -behavior(blockchain_txn).
 -behavior(blockchain_json).
 
@@ -496,7 +492,7 @@ maybe_update_neighbors(Gateway, Ledger) ->
             {ok, Gw} = blockchain_ledger_v1:find_gateway_info(Gateway, Ledger),
             ok = blockchain_ledger_v1:fixup_neighbors(Gateway, Gateways, Neighbors, Ledger),
             Gw1 = blockchain_ledger_gateway_v2:neighbors(Neighbors, Gw),
-            ok = blockchain_ledger_v1:update_gateway(Gw1, Gateway, Ledger)
+            ok = blockchain_ledger_v1:update_gateway(Gw, Gw1, Gateway, Ledger)
     end.
 
 -spec maybe_alter_hex(OldGw :: blockchain_ledger_gateway_v2:gateway(),
