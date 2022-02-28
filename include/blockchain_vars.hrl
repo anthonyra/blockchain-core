@@ -152,6 +152,8 @@
 %%       and so this value must be sufficient as to give time for absorb to occur
 -define(poc_receipts_absorb_timeout, poc_receipts_absorb_timeout).
 
+%% Number of POC ephemeral keys to be generated and included in a validator heartbeat: pos_integer
+-define(poc_validator_ephemeral_key_count, poc_validator_ephemeral_key_count).
 
 %% Number of blocks to wait before a hotspot can be eligible to participate in a poc
 %% challenge. This would avoid new hotspots getting challenged before they sync to an
