@@ -940,6 +940,8 @@ validate_var(?poc_receipts_absorb_timeout, Value) ->
     validate_int(Value, "poc_receipts_absorb_timeout", 10, 100, false);
 validate_var(?poc_validator_ephemeral_key_count, Value) ->
     validate_int(Value, "poc_validator_ephemeral_key_count", 1, 100, false);
+validate_var(?poc_validator_ephemeral_key_timeout, Value) ->
+    validate_int(Value, "poc_validator_ephemeral_key_timeout", 1, 1000, false);
 
 validate_var(?poc_challenger_type, Value) ->
     case Value of
