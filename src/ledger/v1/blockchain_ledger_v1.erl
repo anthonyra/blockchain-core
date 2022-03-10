@@ -29,7 +29,8 @@
     get_block/2, get_raw_block/2, get_block_info/2,
 
     new_snapshot/1, context_snapshot/1, has_snapshot/2, release_snapshot/1, snapshot/1,
-
+    maybe_use_snapshot/2,
+    
     drop_snapshots/1,
 
     current_height/1, current_height/2, increment_height/2,
