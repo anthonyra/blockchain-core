@@ -38,6 +38,7 @@
     election_epoch/1, election_epoch/2,
     process_delayed_actions/3,
 
+    active_gateways_cf/1,
     active_gateways/1, snapshot_gateways/1, load_gateways/2,
     entries/1,
     htlcs/1,
